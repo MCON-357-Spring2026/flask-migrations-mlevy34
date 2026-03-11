@@ -1,5 +1,5 @@
-from src.demo.flask_orm.app import create_app
-from src.demo.flask_orm.extensions import db
+from src.orm_demo.flask_orm.app import create_app
+from src.orm_demo.flask_orm.extensions import db
 
 app = create_app()
 

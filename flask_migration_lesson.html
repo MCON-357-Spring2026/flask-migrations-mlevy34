@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flask Database Migrations with Flask-Migrate</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #ffffff;
+            --surface-alt: #f0f4fa;
+            --text: #1f2937;
+            --muted: #4b5563;
+            --heading: #0f172a;
+            --accent: #2563eb;
+            --accent-soft: #dbeafe;
+            --border: #dbe2ea;
+            --success: #166534;
+            --warning: #92400e;
+            --code-bg: #0f172a;
+            --code-text: #e5eefc;
+            --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            --radius: 18px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.65;
+            color: var(--text);
+            background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 220px);
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 20px 60px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+            color: #fff;
+            border-radius: 24px;
+            padding: 40px 34px;
+            box-shadow: var(--shadow);
+            margin-bottom: 28px;
+        }
+
+        .hero h1 {
+            margin: 0 0 12px;
+            font-size: 2.25rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 850px;
+            font-size: 1.05rem;
+            color: #e5efff;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 22px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 28px;
+        }
+
+        .card.alt {
+            background: var(--surface-alt);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 14px;
+            color: var(--heading);
+            font-size: 1.6rem;
+        }
+
+        h3 {
+            margin-top: 28px;
+            margin-bottom: 10px;
+            color: var(--heading);
+            font-size: 1.18rem;
+        }
+
+        p { margin: 0 0 14px; }
+
+        ul, ol {
+            margin: 0 0 16px 22px;
+            padding: 0;
+        }
+
+        li { margin-bottom: 8px; }
+
+        .pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .pill {
+            background: var(--accent-soft);
+            color: #1d4ed8;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .callout {
+            border-left: 6px solid var(--accent);
+            background: #eff6ff;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin: 18px 0;
+        }
+
+        .note {
+            border-left: 6px solid #16a34a;
+            background: #f0fdf4;
+            padding: 14px 16px;
+            border-radius: 12px;
+            margin: 18px 0;
+        }
+
+        .warning {
+            border-left: 6px solid #f59e0b;
+            background: #fffbeb;
+            padding: 14px 16px;
+            border-radius: 12px;
+            margin: 18px 0;
+        }
+
+        .step {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px;
+            background: #fff;
+            margin-bottom: 18px;
+        }
+
+        .step-title {
+            margin: 0 0 8px;
+            font-size: 1.08rem;
+            color: var(--heading);
+            font-weight: bold;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 16px;
+            border-radius: 14px;
+            overflow-x: auto;
+            border: 1px solid #1e293b;
+            margin: 14px 0 18px;
+            line-height: 1.5;
+        }
+
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        }
+
+        .inline-code {
+            background: #eaf2ff;
+            color: #1d4ed8;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.95em;
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-top: 14px;
+        }
+
+        .example-box {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px;
+            background: #fff;
+        }
+
+        .example-box h4 {
+            margin: 0 0 8px;
+            color: var(--heading);
+            font-size: 1.02rem;
+        }
+
+        .footer-box {
+            margin-top: 10px;
+            padding: 18px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+            border: 1px solid var(--border);
+        }
+
+        @media (max-width: 860px) {
+            .two-col,
+            .example-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 1.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <section class="hero">
+        <h1>Lesson: Flask Database Migrations with Flask-Migrate</h1>
+        <p>
+            In this lesson, we move from simply defining SQLAlchemy models to managing database schema changes in a professional Flask application.
+            You will review ORM basics, understand how a Flask project is typically organized, see how blueprints fit into that structure,
+            and then walk through the migration workflow from the very first migration to later schema updates.
+        </p>
+        <div class="pill-row">
+            <div class="pill">Flask</div>
+            <div class="pill">SQLAlchemy</div>
+            <div class="pill">Blueprints</div>
+            <div class="pill">Flask-Migrate</div>
+            <div class="pill">Alembic</div>
+        </div>
+    </section>
+
+    <div class="grid">
+        <section class="card">
+            <h2>1. ORM Refresher</h2>
+            <p>
+                In earlier lessons, we used SQLAlchemy as an ORM, which stands for <strong>Object-Relational Mapper</strong>.
+                An ORM lets us represent database tables as Python classes and rows as Python objects.
+                Instead of writing raw SQL for every insert, update, or query, we work with model classes such as <span class="inline-code">Student</span>, <span class="inline-code">Assignment</span>, and <span class="inline-code">Grade</span>.
+                Each model class describes the structure of a table through columns, relationships, and constraints.
+                This approach makes the code easier to read, easier to organize, and more consistent with the rest of the Python application.
+                However, once the database already exists, changing a model class does not automatically update the existing table structure, and that is exactly the problem migrations solve.
+            </p>
+            <div class="callout">
+                <strong>Key idea:</strong> ORM models describe the schema we want in Python, but migrations are what keep the real database aligned with those model changes over time.
+            </div>
+        </section>
+
+        <section class="card alt">
+            <h2>2. Typical Flask Application Structure</h2>
+            <p>
+                As Flask applications grow, it becomes important to separate responsibilities into different files and folders.
+                A common structure includes an application factory, a configuration file, an extensions file, models, routes, and sometimes multiple blueprints.
+                This structure keeps the app modular and easier to understand.
+            </p>
+            <pre><code>flask-orm/
+├── src/
+│   └── migration_demo/
+│       ├── __init__.py
+│       ├── app.py
+│       ├── config.py
+│       ├── extensions.py
+│       ├── models.py
+│       ├── routes.py
+│       ├── manage.py
+│       ├── migrations/ <- created by Flask-Migrate
+│
+└── data/</code></pre>
+            <div class="two-col">
+                <div>
+                    <h3>What each file usually does</h3>
+                    <ul>
+                        <li><span class="inline-code">app.py</span>: creates and configures the Flask app</li>
+                        <li><span class="inline-code">config.py</span>: stores settings such as the database URI</li>
+                        <li><span class="inline-code">extensions.py</span>: creates reusable objects like <span class="inline-code">db</span> and <span class="inline-code">migrate</span></li>
+                        <li><span class="inline-code">models.py</span>: defines SQLAlchemy model classes</li>
+                        <li><span class="inline-code">routes.py</span>: contains view functions and API endpoints</li>
+                        <li><span class="inline-code">manage.py</span>: gives Flask CLI access to the app for commands such as migrations and run</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Why this structure helps</h3>
+                    <ul>
+                        <li>It separates configuration from business logic.</li>
+                        <li>It keeps model code away from route code.</li>
+                        <li>It makes testing easier.</li>
+                        <li>It scales better when the project grows.</li>
+                        <li>It works well with extensions like Flask-Migrate.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>3. What Is a Blueprint?</h2>
+            <p>
+                A <strong>blueprint</strong> is a way to organize related routes into reusable components.
+                Instead of putting every route in one massive file, we can group related routes together and register them with the application.
+                For example, one blueprint might handle students, another assignments, and another authentication.
+                Blueprints help keep route code cleaner and make it easier to split a project into logical modules.
+                They do not replace the Flask app itself, but they plug into it.
+            </p>
+            <pre><code>from flask import Blueprint
+
+api = Blueprint("main", __name__)
+
+@api.get("/students")
+def get_students():
+    return {"message": "students endpoint"}</code></pre>
+            <p>Then the blueprint is registered in the application factory:</p>
+            <pre><code>from flask import Flask
+from .routes import api
+
+app = Flask(__name__)
+app.register_blueprint(api)</code></pre>
+            <div class="note">
+                <strong>Why it matters here:</strong> migrations work at the application and model level, but the routes that expose your data to users are often organized inside blueprints.
+            </div>
+        </section>
+
+        <section class="card alt">
+            <h2>4. What Is a Migration?</h2>
+            <p>
+                A migration is a tracked, repeatable change to the database schema.
+                Instead of deleting the database and starting over every time a model changes, we generate migration scripts that describe exactly how the schema should evolve.
+                In Flask projects, <strong>Flask-Migrate</strong> provides the Flask integration, while <strong>Alembic</strong> generates and applies the migration scripts.
+            </p>
+            <div class="warning">
+                <strong>Why not just use <span class="inline-code">db.create_all()</span>?</strong> Because it is fine for quick demos, but it does not keep a history of changes, does not document the evolution of the schema, and does not safely handle ongoing updates in a real project.
+            </div>
+            <ul>
+                <li>Migrations track schema history.</li>
+                <li>Migrations produce scripts that can be reviewed.</li>
+                <li>Migrations can be applied consistently across environments.</li>
+                <li>Migrations help teams evolve a schema without guessing what changed.</li>
+            </ul>
+        </section>
+
+        <section class="card">
+            <h2>5. Migration Workflow with Examples</h2>
+            <p>
+                The migration workflow usually follows the same pattern: define models, initialize migration support, generate a migration, apply it, and repeat when the schema changes.
+                The examples below walk through the typical lifecycle.
+            </p>
+
+            <div class="step">
+                <div class="step-title">Example 1: What migration files are</div>
+                <p>
+                    Migration files are Python scripts generated by Alembic. Each file records one schema change, such as creating tables,
+                    adding a column, dropping a constraint, or changing a field definition. These files become part of your project history and should usually be committed to version control.
+                </p>
+                <pre><code>migrations/
+├── env.py
+├── script.py.mako
+└── versions/
+    ├── 2f1c9a_initial_schema.py
+    └── 8e4d7b_add_due_date_to_assignment.py</code></pre>
+                <p>
+                    The <span class="inline-code">versions/</span> folder is especially important because it contains the actual migration scripts that describe how the schema changed over time.
+                </p>
+            </div>
+
+            <div class="step">
+                <div class="step-title">Example 2: Initialize migration support</div>
+                <p>
+                    Before generating any migration files, the app must connect Flask-Migrate to the Flask app and the SQLAlchemy database object.
+                </p>
+                <pre><code>from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+
+db = SQLAlchemy()
+migrate = Migrate()</code></pre>
+                <pre><code>def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+
+    app.register_blueprint(bp)
+    return app</code></pre>
+                <p>
+                    Then initialize the migration environment once:
+                </p>
+                <pre><code>flask --app manage.py db init</code></pre>
+                <p>
+                    This creates the top-level <span class="inline-code">migrations/</span> directory that Alembic will use.
+                </p>
+            </div>
+
+            <div class="step">
+                <div class="step-title">Example 3: Create the initial migration</div>
+                <p>
+                    Suppose the app already has these models:
+                </p>
+                <pre><code>class Student(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+class Assignment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(120), nullable=False)
+    max_score = db.Column(db.Integer, nullable=False)</code></pre>
+                <p>
+                    Once the models exist, generate the first migration:
+                </p>
+                <pre><code>flask --app manage.py db migrate -m "initial schema"</code></pre>
+                <p>
+                    Flask-Migrate inspects the models and creates a migration file that contains operations such as <span class="inline-code">create_table()</span>.
+                </p>
+            </div>
+
+            <div class="step">
+                <div class="step-title">Example 4: Apply the initial migration</div>
+                <p>
+                    Generating a migration file does not yet change the database. To apply the migration to the actual database, run:
+                </p>
+                <pre><code>flask --app manage.py db upgrade</code></pre>
+                <p>
+                    This executes the migration script and creates the database tables described in the initial migration.
+                    At this point, the database and the model definitions are finally synchronized.
+                </p>
+                <div class="note">
+                    <strong>Important:</strong> <span class="inline-code">db migrate</span> creates the script. <span class="inline-code">db upgrade</span> actually applies it.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">Example 5: Track schema changes later</div>
+                <p>
+                    Now imagine the requirements change and we add a due date to assignments.
+                </p>
+                <pre><code>class Assignment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(120), nullable=False)
+    max_score = db.Column(db.Integer, nullable=False)
+    due_date = db.Column(db.Date, nullable=True)</code></pre>
+                <p>
+                    After changing the model, generate a new migration:
+                </p>
+                <pre><code>flask --app manage.py db migrate -m "add due_date to assignment"</code></pre>
+                <p>
+                    Then apply it:
+                </p>
+                <pre><code>flask --app manage.py db upgrade</code></pre>
+                <p>
+                    Alembic now adds only the new column instead of rebuilding the entire database.
+                    That is what makes migrations so powerful: they track schema evolution step by step.
+                </p>
+            </div>
+        </section>
+
+        <section class="card alt">
+            <h2>6. Typical Commands</h2>
+            <pre><code>flask --app manage.py db init
+flask --app manage.py db migrate -m "initial schema"
+flask --app manage.py db upgrade</code></pre>
+            <p>Later, after changing a model:</p>
+            <pre><code>flask --app manage.py db migrate -m "describe the schema change"
+flask --app manage.py db upgrade</code></pre>
+            <div class="callout">
+                <strong>Common classroom reminder:</strong> changing a model file is not enough. Students must generate a migration and apply it, or the database schema will still reflect the old version.
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>7. Putting It All Together</h2>
+            <div class="example-grid">
+                <div class="example-box">
+                    <h4>What the model does</h4>
+                    <p>Defines the schema in Python using classes and columns.</p>
+                </div>
+                <div class="example-box">
+                    <h4>What the migration file does</h4>
+                    <p>Records the exact schema operations needed to update the real database.</p>
+                </div>
+                <div class="example-box">
+                    <h4>What <span class="inline-code">db migrate</span> does</h4>
+                    <p>Generates a migration script by comparing current models to the existing schema state.</p>
+                </div>
+                <div class="example-box">
+                    <h4>What <span class="inline-code">db upgrade</span> does</h4>
+                    <p>Runs the migration script against the database so the schema actually changes.</p>
+                </div>
+            </div>
+            <div class="footer-box">
+                <p>
+                    In short, SQLAlchemy gives us a Python-based way to describe our data model, while Flask-Migrate and Alembic give us a disciplined way to evolve that model over time.
+                    In a professional project, migrations are the bridge between model code and the real database.
+                </p>
+            </div>
+        </section>
+    </div>
+</div>
+</body>
+</html>
