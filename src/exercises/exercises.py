@@ -22,7 +22,7 @@ def create_student(name: str, email: str) -> Student:
       - rollback
       - raise ValueError("duplicate email")
     """
-    # create and commit; handle duplicate email
+    # create_sample_data.bat and commit; handle duplicate email
     s = Student(name=name, email=email)
     db.session.add(s)
     try:

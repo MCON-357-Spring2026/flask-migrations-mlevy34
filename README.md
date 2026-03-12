@@ -1,42 +1,25 @@
-# Flask ORM Repo (Flask-SQLAlchemy + Flask Test Client)
+# Flask Migrations
 
-This repo teaches Flask ORM using Flask-SQLAlchemy and reuses database concepts from the previous lesson:
-tables, constraints, relationships, joins, and transactions.
+This repo demonstrates how to use Flask-Migrate to manage database schema changes in a Flask application. It includes exercises to practice creating and applying migrations, as well as evolving the database schema over time. The README provides step-by-step instructions for setting up the project, running migrations, and testing the API endpoints.
 
-## Structure
-- `data/` — generated SQLite DB files (ignored by git)
-- `src/demo/flask_orm/` — Flask app factory + models + routes (reference solution)
-- `src/demo/demo.py` — demo script that seeds in-memory data
-- `src/exercises/` — in-class exercises (implement TODOs in `exercises.py`)
-
-- `tests/` — pytest tests (functions + API routes)
-- `.github/` — GitHub Classroom autograding using `education/autograding@v1`
-
-## Setup
+## To initialize the database run from repo root:
 ```bash
-python -m venv .venv
-source .venv/bin/activate   # mac/linux
-# .venv\\Scripts\\activate  # windows
-pip install -r requirements.txt
+flask --app src.migration_demo.manage:app db init 
 ```
-
-## Run servers / demos
-- Demo reference app (uses solution code):
-  ```bash
-  python -m src.demo.flask_orm.run
-  ```
-- Exercises API (calls your implementations):
-  ```bash
-  python -m src.exercises.run
-  ```
-
-## What to implement
-- `src/exercises/exercises.py`: all ORM functions (CRUD, queries, aggregation, updates, filtering).
-- `src/homework/homework.py`: homework-gradebook helpers (assignments, grades, reports, leaderboard).
-
-## Run tests
+Check that the `migrations/` folder is created.
+## To generate a migration after making changes to the models:
 ```bash
-pytest -q tests/test_exercises.py          # function-level exercises
-pytest -q tests/test_exercises_routes.py   # API routes powered by your exercises
-pytest -q                                  # everything
+flask --app src.migration_demo.manage:app db migrate -m "Initial migration"
 ```
+Check that a new migration file is created in the `migrations/versions/` folder with the expected schema changes.
+## To apply the migration to the database:
+```bash
+flask --app src.migration_demo.manage:app db upgrade
+```
+Check that sqlite3 database file is created in the data directory and that the schema matches the models defined in `app.py`. You can also test the API endpoints to confirm that the application is working as expected.
+
+Now run the demo application:
+```bash
+flask --app src.migration_demo.manage:app run
+```
+You can test the API endpoints using curl or Postman to confirm that the application is working as

@@ -8,7 +8,7 @@ class Student(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     #TODO - add this field
-    cohort = db.Column(db.String(50), nullable=True)
+    # cohort = db.Column(db.String(50), nullable=True)
 
     grades = db.relationship("Grade", back_populates="student", cascade="all, delete-orphan")
 
